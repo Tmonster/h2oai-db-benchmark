@@ -20,8 +20,16 @@ pidof java > /dev/null 2>&1 && echo "# Benchmark run $BATCH aborted. java is run
 source ./clickhouse/ch.sh
 ch_installed && ch_active && echo "# Benchmark run $BATCH aborted. clickhouse-server is running, shut it down before calling 'run.sh'" && exit;
 
-# confirm swap disabled
-Rscript -e 'swap_all<-data.table::fread("free -h | grep Swap", header=FALSE)[, -1L][, as.numeric(gsub("[^0-9.]", "", unlist(.SD)))]; swap_off<-!is.na(s<-sum(swap_all)) && s==0; q("no", status=as.numeric(swap_off))' && echo "# Benchmark run $BATCH aborted. swap is enabled, 'free -h' has to report only 0s for Swap, run 'swapoff -a' before calling 'run.sh'" && exit;
+
+if [[ $IGNORE_SWAP == true ]]
+then
+  # used for github actions. can only disable swap as super user.
+  echo "Ignoring swap"
+  continue
+else
+  # confirm swap is disabled
+  Rscript -e 'swap_all<-data.table::fread("free -h | grep Swap", header=FALSE)[, -1L][, as.numeric(gsub("[^0-9.]", "", unlist(.SD)))]; swap_off<-!is.na(s<-sum(swap_all)) && s==0; q("no", status=as.numeric(swap_off))' && echo "# Benchmark run $BATCH aborted. swap is enabled, 'free -h' has to report only 0s for Swap, run 'swapoff -a' before calling 'run.sh'" && exit;
+fi
 
 # ensure directories exists
 mkdir -p ./out
@@ -46,6 +54,8 @@ if [[ "$DO_UPGRADE" == true && "$RUN_SOLUTIONS" =~ "dplyr" ]]; then ./dplyr/upg-
 if [[ "$RUN_SOLUTIONS" =~ "dplyr" ]]; then ./dplyr/ver-dplyr.sh; fi;
 if [[ "$DO_UPGRADE" == true && "$RUN_SOLUTIONS" =~ "juliadf" ]]; then ./juliadf/upg-juliadf.sh; fi;
 if [[ "$RUN_SOLUTIONS" =~ "juliadf" ]]; then ./juliadf/ver-juliadf.sh; fi;
+if [[ "$DO_UPGRADE" == true && "$RUN_SOLUTIONS" =~ "juliads" ]]; then ./juliads/upg-juliads.sh; fi;
+if [[ "$RUN_SOLUTIONS" =~ "juliads" ]]; then ./juliads/ver-juliads.sh; fi;
 if [[ "$DO_UPGRADE" == true && "$RUN_SOLUTIONS" =~ "modin" ]]; then ./modin/upg-modin.sh; fi;
 if [[ "$RUN_SOLUTIONS" =~ "modin" ]]; then ./modin/ver-modin.sh; fi;
 if [[ "$DO_UPGRADE" == true && "$RUN_SOLUTIONS" =~ "pandas" ]]; then ./pandas/upg-pandas.sh; fi;
@@ -66,6 +76,8 @@ if [[ "$DO_UPGRADE" == true && "$RUN_SOLUTIONS" =~ "duckdb" ]]; then ./duckdb/up
 if [[ "$RUN_SOLUTIONS" =~ "duckdb" ]]; then ./duckdb/ver-duckdb.sh; fi;
 if [[ "$DO_UPGRADE" == true && "$RUN_SOLUTIONS" =~ "duckdb-latest" ]]; then ./duckdb-latest/setup-duckdb-latest.sh; fi;
 if [[ "$RUN_SOLUTIONS" =~ "duckdb-latest" ]]; then ./duckdb-latest/ver-duckdb-latest.sh; fi;
+if [[ "$DO_UPGRADE" == true && "$RUN_SOLUTIONS" =~ "datafusion" ]]; then ./datafusion/upg-datafusion.sh; fi;
+if [[ "$RUN_SOLUTIONS" =~ "datafusion" ]]; then ./datafusion/ver-datafusion.sh; fi;
 
 # run
 if [[ -f ./stop ]]; then echo "# Benchmark run $BATCH has been interrupted after $(($(date +%s)-$BATCH))s due to 'stop' file" && rm -f ./stop && rm -f ./run.lock && exit; fi;

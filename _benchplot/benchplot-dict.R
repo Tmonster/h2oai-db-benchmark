@@ -38,11 +38,13 @@ solution.dict = {list(
   "spark" = list(name=c(short="spark", long="spark"), color=c(strong="#8000FFFF", light="#CC66FF")),
   "dask" = list(name=c(short="dask", long="dask"), color=c(strong="slategrey", light="lightgrey")),
   "juliadf" = list(name=c(short="DF.jl", long="DataFrames.jl"), color=c(strong="deepskyblue", light="darkturquoise")),
+  "juliads" = list(name=c(short="IMD.jl", long="InMemoryDatasets.jl"), color=c(strong="#b80000", light="#ff1f1f")),
   "clickhouse" = list(name=c(short="clickhouse", long="ClickHouse"), color=c(strong="hotpink4", light="hotpink1")),
   "polars" = list(name=c(short="polars", long="Polars"), color=c(strong="deepskyblue4", light="deepskyblue3")),
   "arrow" = list(name=c(short="arrow", long="Arrow"), color=c(strong="aquamarine3", light="aquamarine1")),
   "duckdb" = list(name=c(short="duckdb", long="DuckDB"), color=c(strong="#ddcd07", light="#fff100")),
-  "duckdb-latest" = list(name=c(short="duckdb-latest", long="duckdb-latest"), color=c(strong="#ddcd07", light="#fff100"))
+  "duckdb-latest" = list(name=c(short="duckdb-latest", long="duckdb-latest"), color=c(strong="#ddcd07", light="#fff100")),
+  "datafusion" = list(name=c(short="datafusion", long="Datafusion"), color=c(strong="deepskyblue4", light="deepskyblue3"))
 )}
 #barplot(rep(c(0L,1L,1L), length(solution.dict)),
 #        col=rev(c(rbind(sapply(solution.dict, `[[`, "color"), "black"))),
@@ -148,6 +150,18 @@ groupby.syntax.dict = {list(
     "regression v1 v2 by id2 id4" = "combine(groupby(DF, [:id2, :id4]), [:v1, :v2] => ((v1,v2) -> cor(v1, v2)^2) => :r2)",
     "sum v3 count by id1:id6" = "combine(groupby(DF, [:id1, :id2, :id3, :id4, :id5, :id6]), :v3 => sum∘skipmissing => :v3, :v3 => length => :count)"
   )},
+   "juliads" = {c(
+    "sum v1 by id1" = "combine(gatherby(x, :id1, stable = false), :v1 => IMD.sum => :v1)",
+    "sum v1 by id1:id2" = "combine(gatherby(x, [:id1, :id2], stable = false), :v1 => IMD.sum => :v1)",
+    "sum v1 mean v3 by id3" = "combine(gatherby(x, :id3, stable = false), :v1 => IMD.sum => :v1, :v3 => IMD.mean => :v3)",
+    "mean v1:v3 by id4" = "combine(gatherby(x, :id4, stable = false), :v1 => IMD.mean => :v1, :v2 => IMD.mean => :v2, :v3 => IMD.mean => :v3)",
+    "sum v1:v3 by id6" = "combine(groupby(x, :id6, stable=false), :v1 => IMD.sum => :v1, :v2 => IMD.sum => :v2, :v3 => IMD.sum => :v3)",
+    "median v3 sd v3 by id4 id5" = "combine(groupby(x, [:id4, :id5], stable=false), :v3 => median! => :median_v3, :v3 => std => :sd_v3)",
+    "max v1 - min v2 by id3" = "combine(gatherby(x, :id3, stable = false), :v1 => IMD.maximum, :v2 => IMD.minimum, 2:3 => byrow(-) => :range_v1_v2)",
+    "largest two v3 by id6" = "combine(groupby(x, :id6, stable=false), :v3 => q8_fun => :largest2_v3)",
+    "regression v1 v2 by id2 id4" = "combine(groupby(x, [:id2, :id4], stable=false), (:v1, :v2) => cor2 => :r2)",
+    "sum v3 count by id1:id6" = "combine(gatherby(x, [:id1, :id2, :id3, :id4, :id5, :id6], stable=false), :v3 => IMD.sum => :v3, :v3 => length => :count)"
+  )},
   "clickhouse" = {c(
     "sum v1 by id1" = "SELECT id1, sum(v1) AS v1 FROM tbl GROUP BY id1",
     "sum v1 by id1:id2" = "SELECT id1, id2, sum(v1) AS v1 FROM tbl GROUP BY id1, id2",
@@ -207,6 +221,18 @@ groupby.syntax.dict = {list(
     "largest two v3 by id6" = "SELECT id6, unnest(list_sort(list(v3), 'desc')[1:2]) AS largest2_v3 FROM (SELECT id6, v3 FROM x WHERE v3 IS NOT NULL) AS subq GROUP BY id6;",
     "regression v1 v2 by id2 id4" = "SELECT id2, id4, pow(corr(v1, v2), 2) AS r2 FROM tbl GROUP BY id2, id4",
     "sum v3 count by id1:id6" = "SELECT id1, id2, id3, id4, id5, id6, sum(v3) AS v3, count(*) AS count FROM tbl GROUP BY id1, id2, id3, id4, id5, id6"
+  )},
+  "datafusion" = {c(
+    "sum v1 by id1" = "SELECT id1, SUM(v1) AS v1 FROM x GROUP BY id1",
+    "sum v1 by id1:id2" = "SELECT id1, id2, SUM(v1) AS v1 FROM x GROUP BY id1, id2",
+    "sum v1 mean v3 by id3" = "SELECT id3, SUM(v1) AS v1, AVG(v3) AS v3 FROM x GROUP BY id3",
+    "mean v1:v3 by id4" = "SELECT id4, AVG(v1) AS v1, AVG(v2) AS v2, AVG(v3) AS v3 FROM x GROUP BY id4",
+    "sum v1:v3 by id6" = "SELECT id6, SUM(v1) AS v1, SUM(v2) AS v2, SUM(v3) AS v3 FROM x GROUP BY id6",
+    "median v3 sd v3 by id4 id5" = "SELECT id4, id5, MEDIAN(v3) AS median_v3, STDDEV(v3) AS sd_v3 FROM tbl GROUP BY id4, id5",
+    "max v1 - min v2 by id3" = "SELECT id3, MAX(v1) - MIN(v2) AS range_v1_v2 FROM x GROUP BY id3",
+    "largest two v3 by id6" = "SELECT id6, v3 from (SELECT id6, v3, row_number() OVER (PARTITION BY id6 ORDER BY v3 DESC) AS row FROM x) t WHERE row <= 2",
+    "regression v1 v2 by id2 id4" = "SELECT id2, id4, POW(CORR(v1, v2), 2) AS r2 FROM tbl GROUP BY id2, id4",
+    "sum v3 count by id1:id6" = "SELECT id1, id2, id3, id4, id5, id6, SUM(v3) as v3, COUNT(*) AS cnt FROM x GROUP BY id1, id2, id3, id4, id5, id6"
   )}
 )}
 groupby.query.exceptions = {list(
@@ -217,11 +243,13 @@ groupby.query.exceptions = {list(
   "spark" =       list("not yet implemented: SPARK-26589" = "median v3 sd v3 by id4 id5"),
   "dask" =        list("not yet implemented: dask#4362" = "median v3 sd v3 by id4 id5"),
   "juliadf" =     list(),
+  "juliads" =     list(),
   "clickhouse" =  list(),
   "polars"     =  list(),
   "arrow"      =  list("Expression row_number() <= 2L not supported in Arrow; pulling data into R" = "max v1 - min v2 by id3", "Expression cor(v1, v2, ... is not supported in arrow; pulling data into R" = "regression v1 v2 by id2 id4"),
   "duckdb"     =  list(),
-  "duckdb-latest"     =  list()
+  "duckdb-latest"     =  list(),
+  "datafusion" =  list(),
 )}
 groupby.data.exceptions = {list(                                                             # exceptions as of run 1575727624
   "data.table" = {list(
@@ -258,6 +286,8 @@ groupby.data.exceptions = {list(                                                
     "timeout" = "G1_1e8_2e0_0_0",
     "out of memory" = c("G1_1e9_1e2_0_0","G1_1e9_1e1_0_0","G1_1e9_2e0_0_0","G1_1e9_1e2_0_1","G1_1e9_1e2_5_0") # CSV.File
   )},
+  "juliads" = {list(
+  )},
   "clickhouse" = {list(
   )},
   "polars" = {list(
@@ -276,7 +306,8 @@ groupby.data.exceptions = {list(                                                
   "duckdb-latest" = {list(
     # "out of memory" = c("G1_1e9_1e2_0_0","G1_1e9_1e1_0_0","G1_1e9_2e0_0_0","G1_1e9_1e2_0_1","G1_1e9_1e2_5_0"),
     # "incorrect: duckdb#1737" = c("G1_1e7_1e2_5_0","G1_1e8_1e2_5_0")
-  )}
+  )},
+  "datafusion" = {list()}
 )}
 groupby.exceptions = task.exceptions(groupby.query.exceptions, groupby.data.exceptions)
 
@@ -316,6 +347,13 @@ join.syntax.dict = {list(
     "medium outer on int" = "leftjoin(DF, medium, on = :id2, makeunique=true, matchmissing=:equal)",
     "medium inner on factor" = "innerjoin(DF, medium, on = :id5, makeunique=true, matchmissing=:equal)",
     "big inner on int" = "innerjoin(DF, big, on = :id3, makeunique=true, matchmissing=:equal)"
+  )},
+  "juliads" = {c(
+    "small inner on int" = "innerjoin(x_df, small_df, on = :id1, makeunique=true)",
+    "medium inner on int" = "innerjoin(x_df, medium_df, on = :id2, makeunique=true)",
+    "medium outer on int" = "leftjoin(x_df, medium_df, on = :id2, makeunique=true)",
+    "medium inner on factor" = "innerjoin(x_df, medium_df, on = :id5, makeunique=true)",
+    "big inner on int" = "innerjoin(x_df, big_df, on = :id3, makeunique=true)"
   )},
   "pandas" = {c(
     "small inner on int" = "DF.merge(small, on='id1')",
@@ -372,6 +410,13 @@ join.syntax.dict = {list(
     "medium outer on int" = "SELECT x.*, medium.id1 AS medium_id1, medium.id4 AS medium_id4, medium.id5 AS medium_id5, v2 FROM x LEFT JOIN medium USING (id2)",
     "medium inner on factor" = "SELECT x.*, medium.id1 AS medium_id1, medium.id2 AS medium_id2, medium.id4 AS medium_id4, v2 FROM x JOIN medium USING (id5)",
     "big inner on int" = "SELECT x.*, big.id1 AS big_id1, big.id2 AS big_id2, big.id4 AS big_id4, big.id5 AS big_id5, big.id6 AS big_id6, v2 FROM x JOIN big USING (id3)"
+  )},
+  "datafusion" = {c(
+    "small inner on int" = "SELECT x.id1, x.id2, x.id3, x.id4 as xid4, small.id4 as smallid4, x.id5, x.id6, x.v1, small.v2 FROM x INNER JOIN small ON x.id1 = small.id1",
+    "medium inner on int" = "SELECT x.id1 as xid1, medium.id1 as mediumid1, x.id2, x.id3, x.id4 as xid4, medium.id4 as mediumid4, x.id5 as xid5, medium.id5 as mediumid5, x.id6, x.v1, medium.v2 FROM x INNER JOIN medium ON x.id2 = medium.id2",
+    "medium outer on int" = "SELECT x.id1 as xid1, medium.id1 as mediumid1, x.id2, x.id3, x.id4 as xid4, medium.id4 as mediumid4, x.id5 as xid5, medium.id5 as mediumid5, x.id6, x.v1, medium.v2 FROM x LEFT JOIN medium ON x.id2 = medium.id2",
+    "medium inner on factor" = "SELECT x.id1 as xid1, medium.id1 as mediumid1, x.id2, x.id3, x.id4 as xid4, medium.id4 as mediumid4, x.id5 as xid5, medium.id5 as mediumid5, x.id6, x.v1, medium.v2 FROM x LEFT JOIN medium ON x.id5 = medium.id5",
+    "big inner on int" = "SELECT x.id1 as xid1, large.id1 as largeid1, x.id2 as xid2, large.id2 as largeid2, x.id3, x.id4 as xid4, large.id4 as largeid4, x.id5 as xid5, large.id5 as largeid5, x.id6 as xid6, large.id6 as largeid6, x.v1, large.v2 FROM x LEFT JOIN large ON x.id3 = large.id3"
   )}
 )}
 join.query.exceptions = {list(
@@ -382,11 +427,13 @@ join.query.exceptions = {list(
   "spark" =       list(),
   "dask" =        list(),
   "juliadf" =     list(),
+  "juliads" =     list(),
   "clickhouse" =  list(),
   "polars"     =  list(),
   "arrow"      =  list(),
   "duckdb"     =  list(),
-  "duckdb-latest"     =  list()
+  "duckdb-latest"     =  list(),
+  "datafusion" =  list()
 )}
 join.data.exceptions = {list(                                                             # exceptions as of run 1575727624
   "data.table" = {list(
@@ -414,12 +461,14 @@ join.data.exceptions = {list(                                                   
   "juliadf" = {list(
     "out of memory" = c("J1_1e9_NA_0_0","J1_1e9_NA_5_0","J1_1e9_NA_0_1")                  # CSV.File
   )},
+  "juliads" = {list(
+  )},
   "clickhouse" = {list(
     "out of memory" = c("J1_1e9_NA_0_0",                                                  # q1 r2 #169
                         "J1_1e9_NA_5_0","J1_1e9_NA_0_1")                                  # q1 r1
   )},
   "polars" = {list(
-    "out of memory" = c("J1_1e9_NA_0_0","J1_1e9_NA_5_0","J1_1e9_NA_0_1")
+    "out of memory" = c("J1_1e9_NA_0_0","J1_1e9_NA_5_0","J1_1e9_NA_0_1"),
   )},
   "arrow" = {list(
     "out of memory" = c("J1_1e9_NA_0_0","J1_1e9_NA_5_0","J1_1e9_NA_0_1", "J1_1e8_NA_0_0", "J1_1e8_NA_5_0", "J1_1e8_NA_0_1" )#,
@@ -434,7 +483,8 @@ join.data.exceptions = {list(                                                   
     # "internal error: duckdb#1739" = c("J1_1e7_NA_0_0","J1_1e7_NA_5_0","J1_1e7_NA_0_1","J1_1e8_NA_0_0","J1_1e8_NA_5_0","J1_1e8_NA_0_1"),
     "out of memory" = c("J1_1e9_NA_0_0","J1_1e9_NA_5_0","J1_1e9_NA_0_1")#,
     #"incorrect: duckdb#1737" = c("J1_1e7_NA_5_0","J1_1e8_NA_5_0")
-  )}
+  )},
+  "datafusion" = {list()}
 )}
 join.exceptions = task.exceptions(join.query.exceptions, join.data.exceptions)
 
