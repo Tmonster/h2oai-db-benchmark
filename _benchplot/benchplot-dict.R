@@ -43,6 +43,7 @@ solution.dict = {list(
   "polars" = list(name=c(short="polars", long="Polars"), color=c(strong="deepskyblue4", light="deepskyblue3")),
   "arrow" = list(name=c(short="arrow", long="Arrow"), color=c(strong="aquamarine3", light="aquamarine1")),
   "duckdb" = list(name=c(short="duckdb", long="DuckDB"), color=c(strong="#ddcd07", light="#fff100")),
+  "duckdb-0.8.1" = list(name=c(short="duckdb-0.8.1", long="duckdb-0.8.1"), color=c(strong="#ddcd07", light="#fff100")),
   "duckdb-latest" = list(name=c(short="duckdb-latest", long="duckdb-latest"), color=c(strong="#ddcd07", light="#fff100")),
   "datafusion" = list(name=c(short="datafusion", long="Datafusion"), color=c(strong="deepskyblue4", light="deepskyblue3"))
 )}
@@ -210,6 +211,18 @@ groupby.syntax.dict = {list(
     "regression v1 v2 by id2 id4" = "SELECT id2, id4, pow(corr(v1, v2), 2) AS r2 FROM tbl GROUP BY id2, id4",
     "sum v3 count by id1:id6" = "SELECT id1, id2, id3, id4, id5, id6, sum(v3) AS v3, count(*) AS count FROM tbl GROUP BY id1, id2, id3, id4, id5, id6"
   )},
+  "duckdb-0.8.1" = {c(
+    "sum v1 by id1" = "SELECT id1, sum(v1) AS v1 FROM tbl GROUP BY id1",
+    "sum v1 by id1:id2" = "SELECT id1, id2, sum(v1) AS v1 FROM tbl GROUP BY id1, id2",
+    "sum v1 mean v3 by id3" = "SELECT id3, sum(v1) AS v1, mean(v3) AS v3 FROM tbl GROUP BY id3",
+    "mean v1:v3 by id4" = "SELECT id4, mean(v1) AS v1, mean(v2) AS v2, mean(v3) AS v3 FROM tbl GROUP BY id4",
+    "sum v1:v3 by id6" = "SELECT id6, sum(v1) AS v1, sum(v2) AS v2, sum(v3) AS v3 FROM tbl GROUP BY id6",
+    "median v3 sd v3 by id4 id5" = "SELECT id4, id5, quantile_cont(v3, 0.5) AS median_v3, stddev(v3) AS sd_v3 FROM tbl GROUP BY id4, id5",
+    "max v1 - min v2 by id3" = "SELECT id3, max(v1)-min(v2) AS range_v1_v2 FROM tbl GROUP BY id3",
+    "largest two v3 by id6" = "SELECT id6, unnest(list_sort(list(v3), 'desc')[1:2]) AS largest2_v3 FROM (SELECT id6, v3 FROM x WHERE v3 IS NOT NULL) AS subq GROUP BY id6;",
+    "regression v1 v2 by id2 id4" = "SELECT id2, id4, pow(corr(v1, v2), 2) AS r2 FROM tbl GROUP BY id2, id4",
+    "sum v3 count by id1:id6" = "SELECT id1, id2, id3, id4, id5, id6, sum(v3) AS v3, count(*) AS count FROM tbl GROUP BY id1, id2, id3, id4, id5, id6"
+  )},
   "duckdb-latest" = {c(
     "sum v1 by id1" = "SELECT id1, sum(v1) AS v1 FROM tbl GROUP BY id1",
     "sum v1 by id1:id2" = "SELECT id1, id2, sum(v1) AS v1 FROM tbl GROUP BY id1, id2",
@@ -248,6 +261,7 @@ groupby.query.exceptions = {list(
   "polars"     =  list(),
   "arrow"      =  list("Expression row_number() <= 2L not supported in Arrow; pulling data into R" = "max v1 - min v2 by id3", "Expression cor(v1, v2, ... is not supported in arrow; pulling data into R" = "regression v1 v2 by id2 id4"),
   "duckdb"     =  list(),
+  "duckdb-0.8.1"     =  list(),
   "duckdb-latest"     =  list(),
   "datafusion" =  list(),
 )}
@@ -304,6 +318,10 @@ groupby.data.exceptions = {list(                                                
     # "incorrect: duckdb#1737" = c("G1_1e7_1e2_5_0","G1_1e8_1e2_5_0")
   )},
   "duckdb-latest" = {list(
+    # "out of memory" = c("G1_1e9_1e2_0_0","G1_1e9_1e1_0_0","G1_1e9_2e0_0_0","G1_1e9_1e2_0_1","G1_1e9_1e2_5_0"),
+    # "incorrect: duckdb#1737" = c("G1_1e7_1e2_5_0","G1_1e8_1e2_5_0")
+  )},
+  "duckdb-0.8.1" = {list(
     # "out of memory" = c("G1_1e9_1e2_0_0","G1_1e9_1e1_0_0","G1_1e9_2e0_0_0","G1_1e9_1e2_0_1","G1_1e9_1e2_5_0"),
     # "incorrect: duckdb#1737" = c("G1_1e7_1e2_5_0","G1_1e8_1e2_5_0")
   )},
@@ -411,6 +429,13 @@ join.syntax.dict = {list(
     "medium inner on factor" = "SELECT x.*, medium.id1 AS medium_id1, medium.id2 AS medium_id2, medium.id4 AS medium_id4, v2 FROM x JOIN medium USING (id5)",
     "big inner on int" = "SELECT x.*, big.id1 AS big_id1, big.id2 AS big_id2, big.id4 AS big_id4, big.id5 AS big_id5, big.id6 AS big_id6, v2 FROM x JOIN big USING (id3)"
   )},
+  "duckdb-0.8.1" = {c(
+    "small inner on int" = "SELECT x.*, small.id4 AS small_id4, v2 FROM x JOIN small USING (id1)",
+    "medium inner on int" = "SELECT x.*, medium.id1 AS medium_id1, medium.id4 AS medium_id4, medium.id5 AS medium_id5, v2 FROM x JOIN medium USING (id2)",
+    "medium outer on int" = "SELECT x.*, medium.id1 AS medium_id1, medium.id4 AS medium_id4, medium.id5 AS medium_id5, v2 FROM x LEFT JOIN medium USING (id2)",
+    "medium inner on factor" = "SELECT x.*, medium.id1 AS medium_id1, medium.id2 AS medium_id2, medium.id4 AS medium_id4, v2 FROM x JOIN medium USING (id5)",
+    "big inner on int" = "SELECT x.*, big.id1 AS big_id1, big.id2 AS big_id2, big.id4 AS big_id4, big.id5 AS big_id5, big.id6 AS big_id6, v2 FROM x JOIN big USING (id3)"
+  )},
   "datafusion" = {c(
     "small inner on int" = "SELECT x.id1, x.id2, x.id3, x.id4 as xid4, small.id4 as smallid4, x.id5, x.id6, x.v1, small.v2 FROM x INNER JOIN small ON x.id1 = small.id1",
     "medium inner on int" = "SELECT x.id1 as xid1, medium.id1 as mediumid1, x.id2, x.id3, x.id4 as xid4, medium.id4 as mediumid4, x.id5 as xid5, medium.id5 as mediumid5, x.id6, x.v1, medium.v2 FROM x INNER JOIN medium ON x.id2 = medium.id2",
@@ -432,6 +457,7 @@ join.query.exceptions = {list(
   "polars"     =  list(),
   "arrow"      =  list(),
   "duckdb"     =  list(),
+  "duckdb-0.8.1"     =  list(),
   "duckdb-latest"     =  list(),
   "datafusion" =  list()
 )}
@@ -475,6 +501,11 @@ join.data.exceptions = {list(                                                   
     # "not yet implemented: #189" = c("J1_1e7_NA_0_0","J1_1e7_NA_5_0","J1_1e7_NA_0_1","J1_1e8_NA_0_0","J1_1e8_NA_5_0","J1_1e8_NA_0_1","J1_1e9_NA_0_0","J1_1e9_NA_5_0","J1_1e9_NA_0_1")
   )},
   "duckdb" = {list(
+    # "internal error: duckdb#1739" = c("J1_1e7_NA_0_0","J1_1e7_NA_5_0","J1_1e7_NA_0_1","J1_1e8_NA_0_0","J1_1e8_NA_5_0","J1_1e8_NA_0_1"),
+    "out of memory" = c("J1_1e9_NA_0_0","J1_1e9_NA_5_0","J1_1e9_NA_0_1")#,
+    #"incorrect: duckdb#1737" = c("J1_1e7_NA_5_0","J1_1e8_NA_5_0")
+  )},
+  "duckdb-0.8.1" = {list(
     # "internal error: duckdb#1739" = c("J1_1e7_NA_0_0","J1_1e7_NA_5_0","J1_1e7_NA_0_1","J1_1e8_NA_0_0","J1_1e8_NA_5_0","J1_1e8_NA_0_1"),
     "out of memory" = c("J1_1e9_NA_0_0","J1_1e9_NA_5_0","J1_1e9_NA_0_1")#,
     #"incorrect: duckdb#1737" = c("J1_1e7_NA_5_0","J1_1e8_NA_5_0")

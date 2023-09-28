@@ -26,6 +26,8 @@ arrow,groupby
 arrow,join
 duckdb,groupby
 duckdb,join
+duckdb-0.8.1,groupby
+duckdb-0.8.1,join
 duckdb-latest,groupby
 duckdb-latest,join
 datafusion,groupby

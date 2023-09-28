@@ -24,7 +24,7 @@ GA/
 utils/
 */py-*/
 */r-*/
-duckdb-latest/duckdb
+duckdb-latest/duckdb-r
 report-done
 db-benchmark.gh-pages/
 run.out

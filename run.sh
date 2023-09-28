@@ -74,6 +74,8 @@ if [[ "$DO_UPGRADE" == true && "$RUN_SOLUTIONS" =~ "arrow" ]]; then ./arrow/upg-
 if [[ "$RUN_SOLUTIONS" =~ "arrow" ]]; then ./arrow/ver-arrow.sh; fi;
 if [[ "$DO_UPGRADE" == true && "$RUN_SOLUTIONS" =~ "duckdb" ]]; then ./duckdb/upg-duckdb.sh; fi;
 if [[ "$RUN_SOLUTIONS" =~ "duckdb" ]]; then ./duckdb/ver-duckdb.sh; fi;
+if [[ "$DO_UPGRADE" == true && "$RUN_SOLUTIONS" =~ "duckdb-0.8.1" ]]; then ./duckdb/upg-duckdb-0.8.1.sh; fi;
+if [[ "$RUN_SOLUTIONS" =~ "duckdb-0.8.1" ]]; then ./duckdb/ver-duckdb-0.8.1.sh; fi;
 if [[ "$DO_UPGRADE" == true && "$RUN_SOLUTIONS" =~ "duckdb-latest" ]]; then ./duckdb-latest/setup-duckdb-latest.sh; fi;
 if [[ "$RUN_SOLUTIONS" =~ "duckdb-latest" ]]; then ./duckdb-latest/ver-duckdb-latest.sh; fi;
 if [[ "$DO_UPGRADE" == true && "$RUN_SOLUTIONS" =~ "datafusion" ]]; then ./datafusion/upg-datafusion.sh; fi;
