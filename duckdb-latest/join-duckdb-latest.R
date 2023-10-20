@@ -38,7 +38,10 @@ detach_and_drop <- function(con, db_file, db) {
   }
 }
 
-tempfile1 <- tempfile()
+clean_schema = 'clean.'
+clean_db = sprintf('%sdb', clean_schema)
+
+tempfile1 <- sprintf("%s-%s-%s.db", solution, task, data_name)
 on_disk = as.numeric(strsplit(data_name, "_", fixed=TRUE)[[1L]][2L])>=1e9
 uses_NAs = as.numeric(strsplit(data_name, "_", fixed=TRUE)[[1L]][4L])>0
 if (on_disk) {
@@ -63,9 +66,9 @@ invisible({
 
 if (!uses_NAs) {
   if (on_disk) {
-    unlink('clean.db')
-    invisible(dbExecute(con, "attach 'clean.db'"))
-    db_name = "clean."
+    unlink(clean_db)
+    invisible(dbExecute(con, sprintf("attach '%s'", clean_db)))
+    db_name = clean_schema
   }
   else {
     db_name = ""
@@ -99,7 +102,7 @@ if (!uses_NAs) {
   if (on_disk) {
     dbDisconnect(con, shutdown=TRUE)
     unlink(tempfile1)
-    con <- dbConnect(duckdb(), dbdir='clean.db')
+    con <- dbConnect(duckdb(), dbdir=clean_db)
   }
 } else {
   invisible({
@@ -251,7 +254,9 @@ invisible(dbExecute(con, "DROP TABLE IF EXISTS q5.ans"))
 detach_and_drop(con, 'q5.db', 'q5')
 
 dbDisconnect(con, shutdown=TRUE)
-unlink('clean.db')
+if (on_disk) {
+  unlink(clean_db)
+}
 
 cat(sprintf("joining finished, took %.0fs\n", proc.time()[["elapsed"]]-task_init))
 
