@@ -38,9 +38,8 @@ jobs:
       shell: bash
       run: ./_utils/setup-small.sh
 
-    - name: Generate 500mb datasets
-      shell: bash
-      run: ./_utils/generate-data-small.sh
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
 
     - name: Remove old logs
       shell: bash
@@ -53,6 +52,10 @@ jobs:
     - name: Turn swap off
       shell: bash
       run: sudo swapoff -a
+
+    - name: Generate 500mb datasets
+      shell: bash
+      run: ./_utils/generate-data-small.sh
 
     - name: Run mini GroupBy benchmark
       shell: bash

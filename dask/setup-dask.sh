@@ -5,6 +5,7 @@ virtualenv dask/py-dask --python=python3.10
 source dask/py-dask/bin/activate
 
 # install binaries
+python3 -m pip install pipenv
 python3 -m pip install "dask[complete]"
 
 # check
