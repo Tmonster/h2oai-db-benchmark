@@ -17,7 +17,7 @@ jobs:
   strategy:
     fail-fast: false
     matrix:
-      solution: [data.table, collapse, dplyr, pandas, pydatatable, spark, juliadf, juliads, polars, arrow, duckdb, duckdb-latest, datafusion]
+      solution: [data.table, collapse, dplyr, pandas, pydatatable, spark, juliadf, juliads, polars, arrow, duckdb, duckdb-latest, datafusion, dask]
   name: Regression Tests solo solutions
   runs-on: ubuntu-20.04
   env:
@@ -45,6 +45,10 @@ jobs:
     - name: Remove old logs
       shell: bash
       run: rm time.csv logs.csv
+
+    - name: Update virtualenv
+      shell: bash
+      run: python3 -m pip install virtualenv
 
     - name: Install all solutions
       shell: bash
@@ -167,4 +171,3 @@ jobs:
         name: all-out.zip
         path: all-out.zip
         if-no-files-found: error
-
