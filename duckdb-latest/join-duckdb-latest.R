@@ -21,26 +21,26 @@ src_jn_y = setNames(file.path("data", paste(y_data_name, "csv", sep=".")), names
 stopifnot(length(src_jn_y)==3L)
 cat(sprintf("loading datasets %s\n", paste(c(data_name, y_data_name), collapse=", ")))
 
-attach_and_use <- function(con, db_file, db) {
-  if (on_disk) {
-    # in case a previous solution failed during query execution and left the file around.
-    if (file.exists(db_file)) {
-      unlink(db_file)
-    }
-    dbExecute(con, sprintf("ATTACH '%s'", db_file))
-  } else {
-    dbExecute(con, sprintf("CREATE SCHEMA %s", db))
-  }
-}
+# attach_and_use <- function(con, db_file, db) {
+#   if (on_disk) {
+#     # in case a previous solution failed during query execution and left the file around.
+#     if (file.exists(db_file)) {
+#       unlink(db_file)
+#     }
+#     dbExecute(con, sprintf("ATTACH '%s'", db_file))
+#   } else {
+#     dbExecute(con, sprintf("CREATE SCHEMA %s", db))
+#   }
+# }
 
-detach_and_drop <- function(con, db_file, db) {
-  if (on_disk) {
-    dbExecute(con, sprintf("DETACH %s", db))
-    unlink(db_file)
-  } else {
-    dbExecute(con, sprintf("DROP SCHEMA %s CASCADE", db))
-  }
-}
+# detach_and_drop <- function(con, db_file, db) {
+#   if (on_disk) {
+#     dbExecute(con, sprintf("DETACH %s", db))
+#     unlink(db_file)
+#   } else {
+#     dbExecute(con, sprintf("DROP SCHEMA %s CASCADE", db))
+#   }
+# }
 
 duckdb_join_db = sprintf('%s_%s_%s.db', gsub("-","_",solution), task, data_name)
 if (file.exists(duckdb_join_db)) {
@@ -82,53 +82,50 @@ if (file.exists(clean_db_name)) {
   unlink(clean_db_name)
 }
 
-if (!uses_NAs) {
-  if (on_disk) {
-    unlink(clean_db_name)
-    invisible(dbExecute(con, sprintf("attach '%s'", clean_db_name)))
-    db_name = clean_schema_name
-  }
-  else {
-    db_name = ""
-  }
+if (on_disk) {
+  unlink(clean_db_name)
+  invisible(dbExecute(con, sprintf("attach '%s'", clean_db_name)))
+  db_name = clean_schema_name
+}
+else {
+  db_name = ""
+}
 
-  id4_enum_statement = "SELECT id4 FROM x_csv UNION ALL SELECT id4 FROM small_csv UNION ALL SELECT id4 from medium_csv UNION ALL SELECT id4 from big_csv"
-  id5_enum_statement = "SELECT id5 FROM x_csv UNION ALL SELECT id5 from medium_csv UNION ALL SELECT id5 from big_csv"
-  invisible(dbExecute(con, sprintf("CREATE TYPE id4ENUM AS ENUM (%s)", id4_enum_statement)))
-  invisible(dbExecute(con, sprintf("CREATE TYPE id5ENUM AS ENUM (%s)", id5_enum_statement)))
+id4_enum_statement = "SELECT id4 FROM x_csv where id4 is not null UNION ALL SELECT id4 FROM small_csv where id4 is not null UNION ALL SELECT id4 from medium_csv where id4 is not null UNION ALL SELECT id4 from big_csv where id4 is not null"
+id5_enum_statement = "SELECT id5 FROM x_csv where id5 is not null UNION ALL SELECT id5 from medium_csv where id5 is not null UNION ALL SELECT id5 from big_csv where id5 is not null"
+invisible(dbExecute(con, sprintf("CREATE TYPE id4ENUM AS ENUM (%s)", id4_enum_statement)))
+invisible(dbExecute(con, sprintf("CREATE TYPE id5ENUM AS ENUM (%s)", id5_enum_statement)))
 
-  invisible(dbExecute(con, sprintf("CREATE TABLE %ssmall(id1 INT64, id4 id4ENUM, v2 DOUBLE)", db_name)))
-  invisible(dbExecute(con, sprintf("INSERT INTO %ssmall (SELECT * from small_csv)", db_name)))
+invisible(dbExecute(con, sprintf("CREATE TABLE %ssmall(id1 INT64, id4 id4ENUM, v2 DOUBLE)", db_name)))
+invisible(dbExecute(con, sprintf("INSERT INTO %ssmall (SELECT * from small_csv)", db_name)))
 
-  invisible(dbExecute(con, sprintf("CREATE TABLE %smedium(id1 INT64, id2 INT64, id4 id4ENUM, id5 id5ENUM, v2 DOUBLE)", db_name)))
-  invisible(dbExecute(con, sprintf("INSERT INTO %smedium (SELECT * FROM medium_csv)", db_name)))
+invisible(dbExecute(con, sprintf("CREATE TABLE %smedium(id1 INT64, id2 INT64, id4 id4ENUM, id5 id5ENUM, v2 DOUBLE)", db_name)))
+invisible(dbExecute(con, sprintf("INSERT INTO %smedium (SELECT * FROM medium_csv)", db_name)))
 
-  invisible(dbExecute(con, sprintf("CREATE TABLE %sbig(id1 INT64, id2 INT64, id3 INT64, id4 id4ENUM, id5 id5ENUM, id6 VARCHAR, v2 DOUBLE)", db_name)))
-  invisible(dbExecute(con, sprintf("INSERT INTO %sbig (Select * from big_csv)", db_name)))
+invisible(dbExecute(con, sprintf("CREATE TABLE %sbig(id1 INT64, id2 INT64, id3 INT64, id4 id4ENUM, id5 id5ENUM, id6 VARCHAR, v2 DOUBLE)", db_name)))
+invisible(dbExecute(con, sprintf("INSERT INTO %sbig (Select * from big_csv)", db_name)))
 
-  invisible(dbExecute(con, sprintf("CREATE TABLE %sx(id1 INT64, id2 INT64, id3 INT64, id4 id4ENUM, id5 id5ENUM, id6 VARCHAR, v1 DOUBLE)", db_name)))
-  invisible(dbExecute(con, sprintf("INSERT INTO %sx (SELECT * FROM x_csv);", db_name)))
+invisible(dbExecute(con, sprintf("CREATE TABLE %sx(id1 INT64, id2 INT64, id3 INT64, id4 id4ENUM, id5 id5ENUM, id6 VARCHAR, v1 DOUBLE)", db_name)))
+invisible(dbExecute(con, sprintf("INSERT INTO %sx (SELECT * FROM x_csv);", db_name)))
 
-  # drop all the csv ingested tables
-  invisible({
-    dbExecute(con, "DROP TABLE x_csv")
-    dbExecute(con, "DROP TABLE small_csv")
-    dbExecute(con, "DROP TABLE medium_csv")
-    dbExecute(con, "DROP TABLE big_csv")
-  })
+# drop all the csv ingested tables
+invisible({
+  dbExecute(con, "DROP TABLE x_csv")
+  dbExecute(con, "DROP TABLE small_csv")
+  dbExecute(con, "DROP TABLE medium_csv")
+  dbExecute(con, "DROP TABLE big_csv")
+})
 
-  if (on_disk) {
-    dbDisconnect(con, shutdown=TRUE)
-    unlink(duckdb_join_db)
-    con <- dbConnect(duckdb(), dbdir=clean_db_name)
-  }
-} else {
-  invisible({
-    dbExecute(con, "ALTER TABLE x_csv RENAME TO x")
-    dbExecute(con, "ALTER TABLE small_csv RENAME TO small")
-    dbExecute(con, "ALTER TABLE medium_csv RENAME TO medium")
-    dbExecute(con, "ALTER TABLE big_csv RENAME TO big")
-  })
+if (on_disk) {
+  dbDisconnect(con, shutdown=TRUE)
+  unlink(duckdb_join_db)
+  con <- dbConnect(duckdb())
+  dbExecute(con, sprintf("ATTACH %s", clean_db_name))
+  dbExecute(con, sprintf("CREATE table x as select * from %sx", db_name))
+  dbExecute(con, sprintf("CREATE table small as select * from %ssmall", db_name))
+  dbExecute(con, sprintf("CREATE table medium as select * from %smedium", db_name))
+  dbExecute(con, sprintf("CREATE table big as select * from %sbig", db_name))
+  dbExecute(con, sprintf("DETACH %s", db_name))
 }
 
 print(in_nr<-dbGetQuery(con, "SELECT count(*) AS cnt FROM x")$cnt)
