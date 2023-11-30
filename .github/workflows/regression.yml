@@ -17,7 +17,7 @@ jobs:
   strategy:
     fail-fast: false
     matrix:
-      solution: [data.table, collapse, dplyr, pandas, pydatatable, spark, juliadf, juliads, polars, arrow, duckdb, duckdb-latest, datafusion]
+      solution: [data.table, collapse, dplyr, pandas, pydatatable, spark, juliadf, juliads, polars, arrow, duckdb, duckdb-latest, datafusion, clickhouse]
   name: Regression Tests solo solutions
   runs-on: ubuntu-20.04
   env:
@@ -53,6 +53,9 @@ jobs:
     - name: Turn swap off
       shell: bash
       run: sudo swapoff -a
+
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
 
     - name: Run mini GroupBy benchmark
       shell: bash
