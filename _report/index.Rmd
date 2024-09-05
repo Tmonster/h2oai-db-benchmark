@@ -97,78 +97,121 @@ loop_benchplot(dt_join, report_name="join", syntax.dict=join.syntax.dict, except
 ```
 
 
-## Task {.tabset .tabset-fade .tabset-pills}
 
-### groupby {.tabset .tabset-fade .tabset-pills}
 
-#### 0.5 GB
+## Machine Type {.tabset .tabset-fade .tabset-pills}
 
-##### **basic questions**
+### Small 
+
+#### Task {.tabset .tabset-fade .tabset-pills}
+
+##### groupby {.tabset .tabset-fade .tabset-pills}
+
+###### 0.5 GB
+
+####### **basic questions**
 
 ![](./groupby/G1_1e7_1e2_0_0_basic.png)
 
-##### **advanced questions**
+####### **advanced questions**
 
 ![](./groupby/G1_1e7_1e2_0_0_advanced.png)
 
-#### 5 GB
+###### 5 GB
 
-##### **basic questions**
+####### **basic questions**
 
 ![](./groupby/G1_1e8_1e2_0_0_basic.png)
 
-##### **advanced questions**
+####### **advanced questions**
 
 ![](./groupby/G1_1e8_1e2_0_0_advanced.png)
 
-#### 50 GB {.active}
+###### 50 GB {.active}
 
-##### **basic questions**
+####### **basic questions**
 
 ![](./groupby/G1_1e9_1e2_0_0_basic.png)
 
-##### **advanced questions**
+####### **advanced questions**
 
 ![](./groupby/G1_1e9_1e2_0_0_advanced.png)
 
-### join {.tabset .tabset-fade .tabset-pills}
+##### join {.tabset .tabset-fade .tabset-pills}
 
-#### 0.5 GB
+###### 0.5 GB
 
-##### **basic questions**
+####### **basic questions**
 
 ![](./join/J1_1e7_NA_0_0_basic.png)
 
-<!--
-##### **advanced questions**
+###### 5 GB {.active}
 
-![](./join/J1_1e7_NA_0_0_advanced.png)
--->
-
-#### 5 GB {.active}
-
-##### **basic questions**
+####### **basic questions**
 
 ![](./join/J1_1e8_NA_0_0_basic.png)
 
+###### 50 GB
 
-<!--
-##### **advanced questions**
-
-![](./join/J1_1e8_NA_0_0_advanced.png)
--->
-
-#### 50 GB
-
-##### **basic questions**
+####### **basic questions**
 
 ![](./join/J1_1e9_NA_0_0_basic.png)
 
-<!--
-##### **advanced questions**
+### Large 
 
-![](./join/J1_1e9_NA_0_0_advanced.png)
--->
+#### Task {.tabset .tabset-fade .tabset-pills}
+
+##### groupby {.tabset .tabset-fade .tabset-pills}
+
+###### 0.5 GB
+
+####### **basic questions**
+
+![](./groupby/G1_1e7_1e2_0_0_basic.png)
+
+####### **advanced questions**
+
+![](./groupby/G1_1e7_1e2_0_0_advanced.png)
+
+###### 5 GB
+
+####### **basic questions**
+
+![](./groupby/G1_1e8_1e2_0_0_basic.png)
+
+####### **advanced questions**
+
+![](./groupby/G1_1e8_1e2_0_0_advanced.png)
+
+###### 50 GB {.active}
+
+####### **basic questions**
+
+![](./groupby/G1_1e9_1e2_0_0_basic.png)
+
+####### **advanced questions**
+
+![](./groupby/G1_1e9_1e2_0_0_advanced.png)
+
+##### join {.tabset .tabset-fade .tabset-pills}
+
+###### 0.5 GB
+
+####### **basic questions**
+
+![](./join/J1_1e7_NA_0_0_basic.png)
+
+###### 5 GB {.active}
+
+####### **basic questions**
+
+![](./join/J1_1e8_NA_0_0_basic.png)
+
+###### 50 GB
+
+####### **basic questions**
+
+![](./join/J1_1e9_NA_0_0_basic.png)
 
 ---
 
