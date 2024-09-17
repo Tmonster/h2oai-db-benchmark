@@ -1,0 +1,90 @@
+name: Run Benchmark
+on:
+  workflow_call:
+    inputs:
+      machine_type: 
+        required: true
+        type: string
+      machine_ami:
+        required: true
+        type: string
+      runner_name:
+        required: true
+        type: string
+
+  start-runner:
+    name: Start self-hosted ec2 runner
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Start EC2 runner
+        shell: bash
+        env:
+          AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+          AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+          AWS_DEFAULT_REGION: us-east-1
+        run: aws ec2 start-instances --instance-id ${{ inputs.machine_ami }}
+
+      - name: Create issue if failure
+        shell: bash
+        if: ${{ failure() && contains(github.ref_name, 'main') }}
+        run: |
+          gh issue create --repo ${{ env.gh_issue_repo }} --title "Could start ${{ machine_type }}" --body "AWS box with instance-id ${{ inputs.machine_ami }} could not be started"
+
+
+  run-benchmark:
+    name: Run benchmark
+    runs-on: ${{ inputs.runner_name }}
+    env:
+      CC: gcc-10
+      CXX: g++-10
+      GEN: ninja
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          path: db-benchmark
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: mount_file_system
+        shell: bash
+        working-directory: db-benchmark
+        run: ./_setup_utils/format_and_mount.sh
+
+      - name: Install all solutions
+        shell: bash
+        working-directory: db-benchmark-metal
+        run: python3 _utils/install_all_solutions.py all
+
+      - name: Change machine type
+        shell: bash
+        run: sed -i 's/MACHINE_TYPE=large/MACHINE_TYPE=${{ inputs.machine_type }}/g' run.conf
+
+      - name: Turn swap off
+        shell: bash
+        run: sudo swapoff -a
+
+      - name: Run all benchmarks
+        shell: bash
+        run: |
+          source path.env
+          ./_run/partitioned_run.sh
+
+      - name: Validate benchmark results and report generation
+        shell: bash
+        run: ./_utils/validate_no_errors.sh
+
+      - name: new_branch_new_results
+        shell: bash
+        run: |
+          git checkout -b new_results_${{ inputs.machine_type }}_${date +%D}
+          git add time.csv
+          git add logs.csv
+          git add **/VERSION
+          git commit -m "new results"
+          git push origin new_branch_new_results
+          git 
