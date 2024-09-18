@@ -18,7 +18,6 @@ get_data_levels = function() {
   in_rows = c("1e7","1e8","1e9")
   k_na_sort = c("NA_0_0","NA_5_0","NA_0_1")
   join = paste("J1", paste(rep(in_rows, each=length(k_na_sort)), k_na_sort, sep="_"), sep="_")
-  join <- c(join, "J1_1e10_NA_10_0")
   ## groupby2014
   in_rows = c("1e7","1e8","1e9")
   k_na_sort = "1e2_0_0"
