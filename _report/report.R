@@ -13,6 +13,7 @@ get_data_levels = function() {
   in_rows = c("1e7","1e8","1e9")
   k_na_sort = c("1e2_0_0","1e1_0_0","2e0_0_0","1e2_0_1","1e2_5_0")
   groupby = paste("G1", paste(rep(in_rows, each=length(k_na_sort)), k_na_sort, sep="_"), sep="_")
+  groupby <- c(groupby, "G1_1e10_1e4_10_0")
   ## join
   in_rows = c("1e7","1e8","1e9")
   k_na_sort = c("NA_0_0","NA_5_0","NA_0_1")
@@ -21,6 +22,7 @@ get_data_levels = function() {
   in_rows = c("1e7","1e8","1e9")
   k_na_sort = "1e2_0_0"
   groupby2014 = paste("G0", paste(rep(in_rows, each=length(k_na_sort)), k_na_sort, sep="_"), sep="_")
+
   list(groupby=groupby, join=join, groupby2014=groupby2014)
 }
 get_excluded_batch = function() {

@@ -24,6 +24,8 @@ src_jn_y = [os.path.join("data", y_data_name[0] + ".csv"), os.path.join("data", 
 if len(src_jn_y) != 3:
   raise Exception("Something went wrong in preparing files used for join")
 
+on_disk = 'TRUE' if float(scale_factor) >= 1e10 else 'FALSE'
+
 print("loading datasets " + data_name + ", " + y_data_name[0] + ", " + y_data_name[2] + ", " + y_data_name[2], flush=True)
 
 with pl.StringCache():

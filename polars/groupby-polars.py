@@ -27,6 +27,9 @@ with pl.StringCache():
     x = (pl.read_csv(src_grp, schema_overrides={"id4":pl.Int32, "id5":pl.Int32, "id6":pl.Int32, "v1":pl.Int32, "v2":pl.Int32, "v3":pl.Float64}, low_memory=True, rechunk=True)
          .with_columns(pl.col(["id1", "id2", "id3"]).cast(pl.Categorical)))
 
+scale_factor = data_name.replace("G1_","")[:4].replace("_", "")
+on_disk = 'TRUE' if float(scale_factor) >= 1e10 else 'FALSE'
+
 in_rows = x.shape[0]
 x.write_ipc(f"{mount_point}/polars/tmp.ipc")
 del x

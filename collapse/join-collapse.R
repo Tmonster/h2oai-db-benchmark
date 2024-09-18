@@ -21,6 +21,8 @@ src_jn_y = setNames(file.path("data", paste(y_data_name, "csv", sep=".")), names
 stopifnot(length(src_jn_y)==3L)
 cat(sprintf("loading datasets %s\n", paste(c(data_name, y_data_name), collapse=", ")))
 
+on_disk = as.numeric(strsplit(data_name, "_", fixed=TRUE)[[1L]][2L])>=1e10
+
 x = data.table::fread(src_jn_x, showProgress=FALSE, stringsAsFactors=TRUE, data.table=FALSE, na.strings="")
 data.table::setDF(x)
 JN = lapply(sapply(simplify=FALSE, src_jn_y, data.table::fread, showProgress=FALSE, stringsAsFactors=TRUE, data.table=FALSE, na.strings=""), as.data.frame)
