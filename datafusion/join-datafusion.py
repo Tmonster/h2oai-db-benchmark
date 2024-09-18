@@ -32,7 +32,6 @@ cache = "TRUE"
 on_disk = "FALSE"
 
 data_name = os.environ["SRC_DATANAME"]
-machine_type = os.environ["MACHINE_TYPE"]
 mount_point = os.environ["MOUNT_POINT"]
 
 src_jn_x = os.path.join("data", data_name + ".csv")
@@ -44,7 +43,6 @@ if len(src_jn_y) != 3:
 print("loading datasets " + data_name + ", " + y_data_name[0] + ", " + y_data_name[2] + ", " + y_data_name[2], flush=True)
 scale_factor = data_name.replace("J1_","")[:4].replace("_", "")
 on_disk = 'TRUE' if float(scale_factor) >= 1e10 else 'FALSE'
-on_disk = 'TRUE' if machine_type == 'small' else 'FALSE'
 
 
 ctx = df.SessionContext()

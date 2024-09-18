@@ -20,7 +20,6 @@ on_disk = "FALSE"
 
 mount_point = os.environ["MOUNT_POINT"]
 data_name = os.environ["SRC_DATANAME"]
-machine_type = os.environ["MACHINE_TYPE"]
 src_grp = os.path.join("data", data_name + ".csv")
 print("loading dataset %s" % data_name, flush=True)
 
@@ -30,7 +29,6 @@ with pl.StringCache():
 
 scale_factor = data_name.replace("G1_","")[:4].replace("_", "")
 on_disk = 'TRUE' if float(scale_factor) >= 1e10 else 'FALSE'
-on_disk = 'TRUE' if on_disk or (machine_type == "small" and float(scale_factor) >= 1e9) else 'FALSE'
 
 in_rows = x.shape[0]
 x.write_ipc(f"{mount_point}/polars/tmp.ipc")

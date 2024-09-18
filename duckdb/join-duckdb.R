@@ -15,7 +15,6 @@ solution = "duckdb"
 cache = TRUE
 
 data_name = Sys.getenv("SRC_DATANAME")
-machine_type = Sys.getenv("MACHINE_TYPE", "large")
 src_jn_x = file.path("data", paste(data_name, "csv", sep="."))
 y_data_name = join_to_tbls(data_name)
 src_jn_y = setNames(file.path("data", paste(y_data_name, "csv", sep=".")), names(y_data_name))
@@ -32,9 +31,6 @@ uses_NAs = as.numeric(strsplit(data_name, "_", fixed=TRUE)[[1L]][4L])>0
 if (on_disk) {
   print("using disk memory-mapped data storage")
   con = dbConnect(duckdb::duckdb(), dbdir=duckdb_join_db)
-  if (machine_type == "small") {
-    invisible(dbExecute(con, "pragma memory_limit='40GB'"))
-  }
 } else {
   print("using in-memory data storage")
   con = dbConnect(duckdb::duckdb())

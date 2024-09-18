@@ -15,7 +15,6 @@ cache = TRUE
 on_disk = FALSE
 
 data_name = Sys.getenv("SRC_DATANAME")
-machine_type = Sys.getenv("MACHINE_TYPE")
 src_jn_x = file.path("data", paste(data_name, "csv", sep="."))
 y_data_name = join_to_tbls(data_name)
 src_jn_y = setNames(file.path("data", paste(y_data_name, "csv", sep=".")), names(y_data_name))
@@ -23,7 +22,6 @@ stopifnot(length(src_jn_y)==3L)
 cat(sprintf("loading datasets %s\n", paste(c(data_name, y_data_name), collapse=", ")))
 
 on_disk = as.numeric(strsplit(data_name, "_", fixed=TRUE)[[1L]][2L])>=1e10
-on_disk = on_disk || (machine_type == "small" && as.numeric(strsplit(data_name, "_", fixed=TRUE)[[1L]][2L])>=1e9)
 
 x = data.table::fread(src_jn_x, showProgress=FALSE, stringsAsFactors=TRUE, data.table=FALSE, na.strings="")
 data.table::setDF(x)

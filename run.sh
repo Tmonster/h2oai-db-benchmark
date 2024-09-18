@@ -30,11 +30,6 @@ else
 fi
 
 
-if [[ $MACHINE_TYPE != 'small' && $MACHINE_TYPE != 'medium' && $MACHINE_TYPE != 'large' ]]; then
-  echo "Machine type is not valid. Must be \`small\` \`medium\` or \`large\` "
-  exit 1
-fi
-
 
 # ensure directories exists
 mkdir -p ./out
