@@ -4,26 +4,11 @@ on:
   repository_dispatch:
 
 jobs:
-  run_small:
-    name: Run Small
-    uses: ./.github/workflows/reusable_run.yml
-    with:
-      machine_type: 'small'
-      machine_ami: i-jsdfjdjdfkj
-      runner_name: db-benchmark-small
 
   run_small:
     name: Run medium
     uses: ./.github/workflows/reusable_run.yml
     with:
       machine_type: 'medium'
-      machine_ami: i-jsdfjdjdfkj
+      machine_ami: i-0ab5cb3c16d0c6fd3
       runner_name: db-benchmark-medium
-
-  run_large:
-    name: Run large
-    uses: ./.github/workflows/reusable_run.yml
-    with:
-      machine_type: 'large'
-      machine_ami: i-jsdfjdjdfkj
-      runner_name: db-benchmark-large
