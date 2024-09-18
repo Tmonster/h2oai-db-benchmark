@@ -17,6 +17,7 @@ solution = "juliadf";
 fun = "by";
 cache = true;
 on_disk = false;
+isondisk(indata) = parse(Float64, split(indata, "_")[2])>=10^10
 
 data_name = ENV["SRC_DATANAME"];
 src_grp = string("data/", data_name, ".csv");
@@ -30,6 +31,8 @@ x = CSV.read(src_grp,
              pool=true);
 in_rows = size(x, 1);
 println(in_rows); flush(stdout);
+
+on_disk = isondisk(data_name)
 
 task_init = time();
 print("grouping...\n"); flush(stdout);

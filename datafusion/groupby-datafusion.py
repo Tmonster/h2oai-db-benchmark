@@ -32,12 +32,23 @@ cache = "TRUE"
 on_disk = "FALSE"
 
 data_name = os.environ["SRC_DATANAME"]
+mount_point = os.environ["MOUNT_POINT"]
 src_grp = os.path.join("data", data_name + ".csv")
 print("loading dataset %s" % data_name, flush=True)
 
+scale_factor = data_name.replace("G1_","")[:4].replace("_", "")
+on_disk = 'TRUE' if float(scale_factor) >= 1e10 else 'FALSE'
+
 data = pacsv.read_csv(src_grp, convert_options=pacsv.ConvertOptions(auto_dict_encode=True))
 
+
 ctx = df.SessionContext()
+if on_disk:
+    runtime = df.RuntimeConfig().with_temp_file_path(f"{mount_point}/datafusion/")
+    config = (df.SessionConfig())
+    ctx = df.SessionContext(config, runtime)
+
+
 ctx.register_record_batches("x", [data.to_batches()])
 
 in_rows = data.num_rows

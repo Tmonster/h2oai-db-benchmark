@@ -21,7 +21,7 @@ solution = "juliads";
 fun = "join";
 cache = true;
 on_disk = false;
-isondisk(indata) = false # It seems that the new machine has enough memory - parse(Float64, split(indata, "_")[2])>=10^9
+isondisk(indata) = parse(Float64, split(indata, "_")[2])>=10^10
 
 data_name = ENV["SRC_DATANAME"];
 src_jn_x = string("data/", data_name, ".csv");
@@ -30,6 +30,8 @@ src_jn_y = [string("data/", y_data_name[1], ".csv"), string("data/", y_data_name
 if length(src_jn_y) != 3
   error("Something went wrong in preparing files used for join")
 end;
+
+on_disk = isondisk(data_name)
 
 println(string("loading datasets ", data_name, ", ", y_data_name[1], ", ", y_data_name[2], ", ", y_data_name[3])); flush(stdout);
 

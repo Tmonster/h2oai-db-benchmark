@@ -18,11 +18,17 @@ cache = "TRUE"
 on_disk = "FALSE"
 
 data_name = os.environ["SRC_DATANAME"]
+machine_type = os.environ["MACHINE_TYPE"]
 src_jn_x = os.path.join("data", data_name + ".csv")
 y_data_name = join_to_tbls(data_name)
 src_jn_y = [os.path.join("data", y_data_name[0] + ".csv"), os.path.join("data", y_data_name[1] + ".csv"), os.path.join("data", y_data_name[2] + ".csv")]
 if len(src_jn_y) != 3:
   raise Exception("Something went wrong in preparing files used for join")
+
+
+scale_factor = data_name.replace("J1_","")[:4].replace("_", "")
+on_disk = 'TRUE' if float(scale_factor) >= 1e10 else 'FALSE'
+on_disk = 'TRUE' if on_disk or (machine_type == "small" and float(scale_factor) >= 1e9) else 'FALSE'
 
 print("loading datasets " + data_name + ", " + y_data_name[0] + ", " + y_data_name[2] + ", " + y_data_name[2], flush=True)
 

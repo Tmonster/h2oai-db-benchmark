@@ -13,11 +13,14 @@ task = "groupby"
 solution = "collapse"
 fun = "group_by"
 cache = TRUE
-on_disk = FALSE
 
 data_name = Sys.getenv("SRC_DATANAME")
+machine_type = Sys.getenv("MACHINE_TYPE")
 src_grp = file.path("data", paste(data_name, "csv", sep="."))
 cat(sprintf("loading dataset %s\n", data_name))
+
+on_disk = as.numeric(strsplit(data_name, "_", fixed=TRUE)[[1L]][2L])>=1e10
+on_disk = on_disk || (machine_type == "small" && as.numeric(strsplit(data_name, "_", fixed=TRUE)[[1L]][2L])>=1e9)
 
 x = data.table::fread(src_grp, showProgress=FALSE, stringsAsFactors=TRUE, na.strings="", data.table=FALSE)
 print(nrow(x))

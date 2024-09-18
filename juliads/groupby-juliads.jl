@@ -20,6 +20,7 @@ solution = "juliads";
 fun = "combine";
 cache = true;
 on_disk = false;
+isondisk(indata) = parse(Float64, split(indata, "_")[2])>=10^10
 
 data_name = ENV["SRC_DATANAME"];
 src_grp = string("data/", data_name, ".csv");
@@ -27,6 +28,8 @@ println(string("loading dataset ", data_name)); flush(stdout);
 
 x = filereader(src_grp, types=[Characters{5}, Characters{5}, Characters{12}, Int32, Int32, Int32, Int32, Int32, Float64]);
 modify!(x, 1:3 => PooledArray)
+
+on_disk = isondisk(data_name)
 
 in_rows = size(x, 1);
 println(in_rows); flush(stdout);
