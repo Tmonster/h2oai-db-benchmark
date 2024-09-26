@@ -84,12 +84,12 @@ rm(ans)
 question = "sum v1:v3 by id6" # q5
 t = system.time(print(dim(ans<-x %>% summarise(.by = id6, v1 = sum(v1), v2 = sum(v2), v3 = sum(v3)))))[["elapsed"]]
 m = memory_usage()
-chkt = system.time(chk<-summarise(ans), v1=sum(v1), v2=sum(v2), v3=sum(v3)))[["elapsed"]]
+chkt = system.time(chk<-summarise(ans, v1=sum(v1), v2=sum(v2), v3=sum(v3)))[["elapsed"]]
 write.log(run=1L, task=task, data=data_name, in_rows=nrow(x), question=question, out_rows=nrow(ans), out_cols=ncol(ans), solution=solution, version=ver, git=git, fun=fun, time_sec=t, mem_gb=m, cache=cache, chk=make_chk(chk), chk_time_sec=chkt, on_disk=on_disk)
 rm(ans)
 t = system.time(print(dim(ans<-x %>% summarise(.by = id6, v1 = sum(v1), v2 = sum(v2), v3 = sum(v3)))))[["elapsed"]]
 m = memory_usage()
-chkt = system.time(chk<-summarise(ans), v1=sum(v1), v2=sum(v2), v3=sum(v3)))[["elapsed"]]
+chkt = system.time(chk<-summarise(ans, v1=sum(v1), v2=sum(v2), v3=sum(v3)))[["elapsed"]]
 write.log(run=2L, task=task, data=data_name, in_rows=nrow(x), question=question, out_rows=nrow(ans), out_cols=ncol(ans), solution=solution, version=ver, git=git, fun=fun, time_sec=t, mem_gb=m, cache=cache, chk=make_chk(chk), chk_time_sec=chkt, on_disk=on_disk)
 print(head(ans, 3))
 print(tail(ans, 3))
